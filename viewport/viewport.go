@@ -1,13 +1,13 @@
 package viewport
 
 import (
+	"github.com/charmbracelet/x/ansi"
 	"math"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/mattn/go-runewidth"
 )
 
 const (
@@ -39,6 +39,9 @@ type Model struct {
 	// YOffset is the vertical scroll position.
 	YOffset int
 
+	// XOffset is the horizontal scroll position.
+	XOffset int
+
 	// YPosition is the position of the viewport in relation to the terminal
 	// window. It's used in high performance rendering only.
 	YPosition int
@@ -59,10 +62,9 @@ type Model struct {
 	// Deprecated: high performance rendering is now deprecated in Bubble Tea.
 	HighPerformanceRendering bool
 
-	// horizontal step represents the step of indent we add with one move left or right.
+	// horizontal step represents the step of XOffset we add with one move left or right.
 	horizontalStep int
 
-	indent      int
 	initialized bool
 	lines       []string
 }
@@ -134,10 +136,10 @@ func (m Model) visibleLines() (lines []string) {
 		lines = m.lines[top:bottom]
 	}
 
-	if m.indent > 0 {
+	if m.XOffset > 0 {
 		cutLines := make([]string, len(lines))
 		for i := range lines {
-			cutLines[i] = runewidth.TruncateLeft(lines[i], m.indent, "")
+			cutLines[i] = ansi.Truncate(lines[i], m.XOffset, "")
 		}
 
 		return cutLines
@@ -322,22 +324,22 @@ func (m *Model) SetHorizontalStep(n int) {
 }
 
 // MoveLeft moves all lines to set runes left.
-// If current indent is 0, it doesn't work.
+// If current XOffset is 0, it doesn't work.
 func (m *Model) MoveLeft() {
-	m.indent -= m.horizontalStep
-	if m.indent < 0 {
-		m.indent = 0
+	m.XOffset -= m.horizontalStep
+	if m.XOffset < 0 {
+		m.XOffset = 0
 	}
 }
 
 // MoveRight moves all lines to set runes right.
 func (m *Model) MoveRight() {
-	m.indent += m.horizontalStep
+	m.XOffset += m.horizontalStep
 }
 
-// Resets lines indent to zero.
+// Resets lines XOffset to zero.
 func (m *Model) ResetIndent() {
-	m.indent = 0
+	m.XOffset = 0
 }
 
 // Update handles standard message-based viewport updates.
