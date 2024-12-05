@@ -1,6 +1,5 @@
 module github.com/charmbracelet/bubbles
 
-go 1.18
 
 require (
 	github.com/MakeNowJust/heredoc v1.0.0
